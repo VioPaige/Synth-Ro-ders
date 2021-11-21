@@ -1,0 +1,146 @@
+-- Services
+local vrService = game:GetService("VRService")
+local rStorage = game:GetService("ReplicatedStorage")
+local tService = game:GetService("TweenService")
+local uiService = game:GetService("UserInputService")
+
+-- Instances
+	-- Folders
+local noteFolder = rStorage:WaitForChild("Notes")
+local remoteFolder = rStorage:WaitForChild("Remotes")
+local workspaceNotes = workspace:WaitForChild("Notes")
+	-- Other
+local plr = game.Players.LocalPlayer
+
+local serverPrintRemote = remoteFolder:WaitForChild("serverPrint")
+local sendNoteRemote = remoteFolder:WaitForChild("sendNote")
+
+local notepref = noteFolder:WaitForChild("Note")
+
+local MenuGui = script.Parent
+local PF, PB, Notifs = MenuGui.PlayFrame, MenuGui.PlayFrame.Play, MenuGui.Notifs
+
+
+
+
+
+
+
+-- Functions
+function testTrack(input)
+	--print(input.KeyCode)
+	if input.KeyCode == Enum.KeyCode.ButtonR2 or input.KeyCode == Enum.KeyCode.ButtonL2 then
+		if vrService.VREnabled then
+			
+			local plrloc = plr.Character.Head.CFrame
+		
+			Notifs.Text = "Track starting in 5 seconds! Prepare for notes coming from in front of you!"
+			Notifs.Visible = true
+			wait(5)
+			Notifs.Visible = false
+			Notifs.Text = "Notification"
+			
+			PF.Visible = false
+			track(plrloc)
+			
+		else
+			
+			Notifs.Text = "You need to be in VR to play a track!"
+			Notifs.Visible = true
+			wait(5)
+			Notifs.Visible = false
+			Notifs.Text = "Notification"		
+			
+		end
+	end
+		
+end
+
+
+
+function track(plrcframe)
+	
+	for i = 1, 20 do
+		sendnote(plrcframe)
+		wait(1)
+	end
+	
+	
+end
+
+
+
+function sendnote(plrcframe)
+	
+	local note = notepref:Clone()			
+	
+	local variation = {
+		x = math.random(-2, 2),
+		y = math.random(0, 2)
+	}
+	
+	local origcf = plrcframe * CFrame.new(variation.x, variation.y, -50)
+	local destcf = plrcframe * CFrame.new(variation.x, variation.y, 20)
+	
+	
+	note.CFrame = origcf
+	note.Parent = workspaceNotes
+	
+	local tInfo = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.In, 0, false, 0)
+	
+	local tween = tService:Create(note, tInfo, {CFrame = destcf})
+	
+	tween:Play()
+	
+end
+
+
+
+function oninput(input)
+	
+	if vrService.VREnabled then
+		
+		--print("input happened: " .. input.KeyCode.Name)
+		
+		if input.KeyCode == Enum.KeyCode.ButtonR2 or input.KeyCode == Enum.KeyCode.ButtonL2 then
+			
+			--print("aofwoiejoseirjgoiejrgsrgserge " .. input.KeyCode.Name)
+			
+			local plrloc = plr.Character.Head.CFrame
+
+			Notifs.Text = "Track starting in 5 seconds! Prepare for notes coming from in front of you!"
+			Notifs.Visible = true
+			wait(5)
+			Notifs.Visible = false
+			Notifs.Text = "Notification"
+
+			PF.Visible = false
+			--track(plrloc)
+			sendNoteRemote:FireServer(plrloc)
+			
+			
+		end
+		
+	end
+	
+end
+
+
+
+
+function serverPrint(message)
+
+	serverPrintRemote:FireServer(message)
+
+end
+
+
+
+
+
+
+
+
+-- Events
+PB.Activated:Connect(testTrack)
+uiService.InputBegan:Connect(oninput)
