@@ -27,6 +27,11 @@ function initPlr(plr)
 	points.Name = 'points'
 	points.Value = 0
 	points.Parent = ls
+	
+	local streak = Instance.new("IntValue")
+	streak.Name = 'streak'
+	streak.Value = 0
+	streak.Parent = ls
 
 end
 
