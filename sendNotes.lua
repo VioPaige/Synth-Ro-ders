@@ -27,7 +27,19 @@ function track(plr, plrcframe)
 	--print(plrcframe)
 
 	for i = 1, 20 do
-		sendnote(plr, plrcframe)
+		local handpicked = math.random(1, 2)
+		local hand = nil
+		local notecolour = nil
+		
+		if handpicked == 1 then 
+			hand = "LeftHand" 
+			notecolour = Color3.fromRGB(255, 0, 191)
+		else 
+			hand = "RightHand" 
+			notecolour = Color3.fromRGB(27, 113, 255)
+		end
+		
+		sendnote(plr, plrcframe, hand, notecolour)
 		wait(1.2)
 	end
 
@@ -36,20 +48,31 @@ end
 
 
 
-function sendnote(plr, plrcframe)
+function sendnote(plr, plrcframe, hand, colour)
 
-	local note = notepref:Clone()			
+	local note = notepref:Clone()	
+	note.Name = hand
+	note.Color = colour
+	note.Player.Value = plr.Name
 
 	local variation = { -- 0-1 times increment *10 for 1 decimal, rounded, divided by 10 for 1 decimal, minus offset
-		x = math.round(math.random() * 70) / 10 - 3.5,
-		y = math.round(math.random() * 40) / 10 - 2.5
+		--x = math.round(math.random() * 70) / 10 - 3.5,
+		--y = math.round(math.random() * 40) / 10 - 2.5
 	}
+	if hand == "LeftHand" then
+		variation.x = math.round(math.random() * 40) / 10 - 3
+		variation.y = math.round(math.random() * 40) / 10 - 2.5
+	elseif hand == "RightHand" then
+		variation.x = math.round(math.random() * 40) / 10 - 1
+		variation.y = math.round(math.random() * 40) / 10 - 2.5
+	end
+	
 
 	
 	local newpos = noteEmitter.Position + Vector3.new(variation.x, variation.y, 0)
 	note.Position = newpos
 	
-	local dest = Vector3.new(newpos.X, newpos.Y, 100)
+	local dest = Vector3.new(newpos.X, newpos.Y, 42)
 	
 	note.Parent = workspaceNotes
 
@@ -61,7 +84,8 @@ function sendnote(plr, plrcframe)
 	
 	tween.Completed:Connect(function()
 		
-		note:Destroy()		
+		print("completed note tween")
+		--note:Destroy()		
 		
 	end)
 	
