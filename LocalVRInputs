@@ -14,11 +14,13 @@ local plr = game.Players.LocalPlayer
 
 local serverPrintRemote = remoteFolder:WaitForChild("serverPrint")
 local sendNoteRemote = remoteFolder:WaitForChild("sendNote")
+local addPointsRemote = remoteFolder:WaitForChild("Addpoints")
+local addStreakRemote = remoteFolder:WaitForChild("Addstreak")
 
 local notepref = noteFolder:WaitForChild("Note")
 
 local MenuGui = script.Parent
-local PF, PB, Notifs = MenuGui.PlayFrame, MenuGui.PlayFrame.Play, MenuGui.Notifs
+local PF, PB, Notifs, Score, ScoreLabel, StreakLabel = MenuGui.PlayFrame, MenuGui.PlayFrame.Play, MenuGui.Notifs, MenuGui.Score, MenuGui.Score.Score.ScoreLabel, MenuGui.Score.Streak.StreakLabel
 
 
 
@@ -136,11 +138,59 @@ end
 
 
 
+function updateScore(newscore)
+	
+	local length = tostring(newscore):len()
+	
+	if length < 5 then
+		
+		for i = 1, 5 - length do
+			newscore = "0" .. tostring(newscore)
+		end
+		
+	end
+	
+	ScoreLabel.Text = newscore
+	
+end
 
+
+
+function updateStreak(newstreak)
+	
+	local length = tostring(newstreak):len()
+
+	if length < 3 then
+
+		for i = 1, 3 - length do
+			newstreak = "0" .. tostring(newstreak)
+		end
+
+	end
+
+	StreakLabel.Text = newstreak
+	
+end
+
+
+
+function nonVRPlayer()
+	
+	Score.Visible = false
+	
+end
 
 
 
 
 -- Events
+if vrService.VREnabled == false then
+	
+	nonVRPlayer()
+	
+end
+
 PB.Activated:Connect(testTrack)
 uiService.InputBegan:Connect(oninput)
+addPointsRemote.OnClientEvent:Connect(updateScore)
+addStreakRemote.OnClientEvent:Connect(updateStreak)
